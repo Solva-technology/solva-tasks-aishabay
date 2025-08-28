@@ -1,0 +1,19 @@
+from pydantic_settings import BaseSettings, SettingsConfigDict
+
+
+class Settings(BaseSettings):
+    PRODUCTION: bool = False
+    APP_TITLE: str = "Task Manager"
+    DESCRIPTION: str = "Система управления задачами для учебных групп"
+    POSTGRES_USER: str = "postgres"
+    POSTGRES_PASSWORD: str
+    DATABASE_URL: str
+    SECRET_WORD: str
+
+    model_config = SettingsConfigDict(
+        env_file=".env",
+        extra="allow",
+    )
+
+
+settings = Settings()

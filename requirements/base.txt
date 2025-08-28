@@ -1,0 +1,9 @@
+alembic==1.16.4
+asyncpg==0.30.0
+dotenv==0.9.9
+fastapi==0.116.1
+fastapi-users==14.0.1
+fastapi-users-db-sqlalchemy==7.0.0
+pydantic-settings==2.10.1
+SQLAlchemy==2.0.42
+uvicorn[standard]==0.35.0
