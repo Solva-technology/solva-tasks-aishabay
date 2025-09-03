@@ -1,13 +1,35 @@
+from typing import Optional
+
 from fastapi_users import schemas
+from libs.common.enums import UserRole
+from pydantic import BaseModel, EmailStr
 
 
 class UserRead(schemas.BaseUser[int]):
-    pass
+    telegram_id: Optional[int]
+    username: Optional[str] = None
+    full_name: Optional[str]
+    role: Optional[UserRole]
 
 
 class UserCreate(schemas.BaseUserCreate):
-    pass
+    telegram_id: Optional[int]
+    username: Optional[str] = None
+    full_name: Optional[str]
+    role: Optional[UserRole]
 
 
 class UserUpdate(schemas.BaseUserUpdate):
-    pass
+    telegram_id: Optional[int]
+    username: Optional[str] = None
+    full_name: Optional[str]
+    role: Optional[UserRole]
+
+
+class UserTelegram(BaseModel):
+    email: Optional[EmailStr]
+    password: Optional[str]
+    telegram_id: Optional[int]
+    username: Optional[str] = None
+    full_name: Optional[str]
+    role: Optional[UserRole]

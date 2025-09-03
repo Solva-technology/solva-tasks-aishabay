@@ -1,31 +1,47 @@
 from fastapi import APIRouter
+from fastapi.params import Depends
+from sqlalchemy.ext.asyncio import AsyncSession
 
-from code.api.schemas.user import UserCreate, UserRead, UserUpdate
-from code.core.user import auth_backend, fastapi_users
+from code.api.schemas.user import UserCreate, UserRead
+from code.core.db import get_async_session
+from code.core.user import (
+    auth_backend,
+    current_user,
+    fastapi_users,
+    role_required,
+)
+from code.db.crud.user import user_crud
+from code.db.models import User
 
 
 router = APIRouter()
 
 router.include_router(
     fastapi_users.get_auth_router(auth_backend),
-    prefix="/auth/telegram/callback",
+    prefix="/auth/jwt",
     tags=["auth"],
 )
 
 router.include_router(
     fastapi_users.get_register_router(UserRead, UserCreate),
-    prefix="/auth/telegram/callback",
+    prefix="/auth",
     tags=["auth"],
 )
 
-users_router = fastapi_users.get_users_router(UserRead, UserUpdate)
 
-users_router.routes = [
-    rout for rout in users_router.routes if rout.name != "users:delete_user"
-]
+@router.get("/user/me")
+async def get_current_user(
+    session: AsyncSession = Depends(get_async_session),
+    user: User = Depends(current_user),
+):
+    user_id = user.id
+    return await user_crud.get_or_404(user_id, session, user)
 
-router.include_router(
-    users_router,
-    prefix="/users",
-    tags=["users"],
-)
+
+@router.get("/user/{id}")
+async def get_user_by_id(
+    user_id: int,
+    session: AsyncSession = Depends(get_async_session),
+    user: User = Depends(role_required(["admin", "teacher"])),
+):
+    return await user_crud.get_or_404(user_id, session, user)

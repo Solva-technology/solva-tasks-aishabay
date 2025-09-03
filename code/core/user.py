@@ -1,6 +1,7 @@
+from http import HTTPStatus
 from typing import Optional, Union
 
-from fastapi import Depends, Request
+from fastapi import Depends, HTTPException, Request
 from fastapi_users import (
     BaseUserManager,
     FastAPIUsers,
@@ -26,7 +27,7 @@ async def get_user_db(session: AsyncSession = Depends(get_async_session)):
     yield SQLAlchemyUserDatabase(session, User)
 
 
-bearer_transport = BearerTransport(tokenUrl="auth/telegram/callback/login")
+bearer_transport = BearerTransport(tokenUrl="auth/jwt/login")
 
 
 def get_jwt_strategy() -> JWTStrategy:
@@ -76,3 +77,14 @@ fastapi_users = FastAPIUsers[User, int](
 
 current_user = fastapi_users.current_user(active=True)
 current_superuser = fastapi_users.current_user(active=True, superuser=True)
+
+
+def role_required(roles: list[str]):
+    async def wrapper(user: User = Depends(current_user)):
+        if user.role not in roles:
+            raise HTTPException(
+                status_code=HTTPStatus.FORBIDDEN,
+                detail="Insufficient permissions",
+            )
+        return user
+    return wrapper
