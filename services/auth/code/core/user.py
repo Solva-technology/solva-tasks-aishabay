@@ -14,6 +14,8 @@ from fastapi_users.authentication import (
     JWTStrategy,
 )
 from fastapi_users_db_sqlalchemy import SQLAlchemyUserDatabase
+from sqlalchemy.ext.asyncio import AsyncSession
+
 from services.auth.code.api.schemas.user import UserCreate
 from services.auth.code.core.config import settings
 from services.auth.code.core.constants import (
@@ -22,7 +24,6 @@ from services.auth.code.core.constants import (
 )
 from services.auth.code.core.db import get_async_session
 from services.auth.code.db.models import User
-from sqlalchemy.ext.asyncio import AsyncSession
 
 
 async def get_user_db(session: AsyncSession = Depends(get_async_session)):

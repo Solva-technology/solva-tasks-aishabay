@@ -3,9 +3,10 @@ from http import HTTPStatus
 from typing import Optional
 
 from fastapi import HTTPException
-from services.auth.code.db.models import User
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
+
+from services.auth.code.db.models import User
 
 
 logger = logging.getLogger(__name__)

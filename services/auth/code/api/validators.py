@@ -1,5 +1,6 @@
-from services.auth.code.db.crud.user import user_crud
 from sqlalchemy.ext.asyncio import AsyncSession
+
+from services.auth.code.db.crud.user import user_crud
 
 
 async def check_user_exists(

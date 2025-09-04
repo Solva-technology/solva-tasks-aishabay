@@ -1,6 +1,5 @@
 from datetime import datetime
 
-from services.auth.code.core.config import settings
 from sqlalchemy import DateTime, func, Integer
 from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
 from sqlalchemy.orm import (
@@ -10,6 +9,8 @@ from sqlalchemy.orm import (
     mapped_column,
     sessionmaker,
 )
+
+from services.auth.code.core.config import settings
 
 
 class PreBase:
