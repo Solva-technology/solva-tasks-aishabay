@@ -1,7 +1,7 @@
 from typing import Optional
 
 from fastapi_users import schemas
-from libs.common.enums import UserRole
+from services.auth.code.core.enum import UserRole
 from pydantic import BaseModel, EmailStr
 
 

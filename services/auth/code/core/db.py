@@ -10,7 +10,7 @@ from sqlalchemy.orm import (
     sessionmaker,
 )
 
-from code.core.config import settings
+from services.auth.code.core.config import settings
 
 
 class PreBase:

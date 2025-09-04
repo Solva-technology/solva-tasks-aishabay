@@ -1,31 +1,47 @@
 services:
-  db:
+  postgres-auth:
     image: postgres:15-alpine
-    container_name: db
+    container_name: postgres-auth
     env_file:
-      - .env
+      - services/auth/.env
     ports:
       - "5436:5432"
     volumes:
-      - postgres_data:/var/lib/postgresql/data
+      - postgres_auth_data:/var/lib/postgresql/data
     healthcheck:
       test: ["CMD", "pg_isready", "-U", "${POSTGRES_USER}"]
       interval: 5s
       retries: 5
 
-  backend:
-    build: .
-    container_name: backend
+#  postgres-core:
+#    image: postgres:15-alpine
+#    container_name: postgres-core
+#    env_file:
+#      - services/core/.env
+#    ports:
+#      - "5437:5432"
+#    volumes:
+#      - postgres_core_data:/var/lib/postgresql/data
+#    healthcheck:
+#      test: [ "CMD", "pg_isready", "-U", "${POSTGRES_USER}" ]
+#      interval: 5s
+#      retries: 5
+
+  auth:
+    build: services/auth
+    container_name: auth
     env_file:
-      - .env
+      - services/auth/.env
     working_dir: /usr/src/app
     volumes:
       - .:/usr/src/app
     tty: true
     ports:
       - "8000:8000"
+    restart: always
     depends_on:
-      - db
+      - postgres-auth
 
 volumes:
-  postgres_data:
+  postgres_auth_data:
+  postgres_core_data:

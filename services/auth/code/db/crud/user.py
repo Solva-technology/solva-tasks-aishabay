@@ -5,8 +5,8 @@ from fastapi_users.password import PasswordHelper
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from code.db.crud.base import CRUDBase
-from code.db.models import User
+from services.auth.code.db.crud.base import CRUDBase
+from services.auth.code.db.models import User
 
 
 logger = logging.getLogger(__name__)

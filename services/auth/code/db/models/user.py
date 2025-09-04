@@ -3,7 +3,7 @@ from libs.common.enums import UserRole
 from sqlalchemy import BigInteger, String
 from sqlalchemy.orm import Mapped, mapped_column
 
-from code.core.base import Base
+from services.auth.code.core.base import Base
 
 
 class User(SQLAlchemyBaseUserTable[int], Base):

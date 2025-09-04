@@ -7,12 +7,12 @@ from logging.handlers import (
     TimedRotatingFileHandler,
 )
 
-from code.core.constants import APP_LOG_BACKUP_COUNT, ERRORS_LOG_BACKUP_COUNT
+from services.auth.code.core.constants import APP_LOG_BACKUP_COUNT, ERRORS_LOG_BACKUP_COUNT
 
 
 def setup_logging(
     log_level: str = "DEBUG",
-    log_dir: str = "logs",
+    log_dir: str = "services/auth/logs",
 ) -> QueueListener:
     """
     Setup non-blocking logging for FastAPI using QueueHandler + QueueListener.

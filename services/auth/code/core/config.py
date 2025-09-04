@@ -7,6 +7,7 @@ class Settings(BaseSettings):
     DESCRIPTION: str = "Система управления задачами для учебных групп"
     POSTGRES_USER: str = "postgres"
     POSTGRES_PASSWORD: str
+    POSTGRES_DB: str
     DATABASE_URL: str
     SECRET_WORD: str
 

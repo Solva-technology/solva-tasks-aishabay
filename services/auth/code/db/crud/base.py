@@ -6,7 +6,7 @@ from fastapi import HTTPException
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from code.db.models import User
+from services.auth.code.db.models import User
 
 
 logger = logging.getLogger(__name__)

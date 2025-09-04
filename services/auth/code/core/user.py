@@ -16,11 +16,11 @@ from fastapi_users.authentication import (
 from fastapi_users_db_sqlalchemy import SQLAlchemyUserDatabase
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from code.api.schemas.user import UserCreate
-from code.core.config import settings
-from code.core.constants import JWT_LIFETIME_SECONDS, PASSWORD_MAX_LEN
-from code.core.db import get_async_session
-from code.db.models import User
+from services.auth.code.api.schemas.user import UserCreate
+from services.auth.code.core.config import settings
+from services.auth.code.core.constants import JWT_LIFETIME_SECONDS, PASSWORD_MAX_LEN
+from services.auth.code.core.db import get_async_session
+from services.auth.code.db.models import User
 
 
 async def get_user_db(session: AsyncSession = Depends(get_async_session)):

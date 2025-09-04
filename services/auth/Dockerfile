@@ -11,7 +11,7 @@ COPY requirements ./requirements
 RUN pip install --upgrade pip && \
     pip install --no-cache-dir -r requirements/base.txt
 
-COPY . .
+COPY . /usr/src/app/services/auth
 
 COPY entrypoint.sh /entrypoint.sh
 RUN chmod +x /entrypoint.sh
