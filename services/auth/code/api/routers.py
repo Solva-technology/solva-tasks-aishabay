@@ -1,5 +1,4 @@
 from fastapi import APIRouter
-
 from services.auth.code.api.endpoints import telegram_router, user_router
 
 

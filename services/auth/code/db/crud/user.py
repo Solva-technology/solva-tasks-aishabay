@@ -2,11 +2,10 @@ import logging
 from typing import Optional
 
 from fastapi_users.password import PasswordHelper
-from sqlalchemy import select
-from sqlalchemy.ext.asyncio import AsyncSession
-
 from services.auth.code.db.crud.base import CRUDBase
 from services.auth.code.db.models import User
+from sqlalchemy import select
+from sqlalchemy.ext.asyncio import AsyncSession
 
 
 logger = logging.getLogger(__name__)

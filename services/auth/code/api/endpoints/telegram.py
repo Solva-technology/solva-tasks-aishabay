@@ -1,11 +1,10 @@
 from fastapi import APIRouter, Depends
-from sqlalchemy.ext.asyncio import AsyncSession
-
 from services.auth.code.api.schemas.user import UserTelegram
 from services.auth.code.api.validators import check_user_exists
 from services.auth.code.core.db import get_async_session
 from services.auth.code.core.user import get_jwt_strategy
 from services.auth.code.db.crud.user import user_crud
+from sqlalchemy.ext.asyncio import AsyncSession
 
 
 router = APIRouter()

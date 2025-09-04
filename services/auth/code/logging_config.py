@@ -7,7 +7,10 @@ from logging.handlers import (
     TimedRotatingFileHandler,
 )
 
-from services.auth.code.core.constants import APP_LOG_BACKUP_COUNT, ERRORS_LOG_BACKUP_COUNT
+from services.auth.code.core.constants import (
+    APP_LOG_BACKUP_COUNT,
+    ERRORS_LOG_BACKUP_COUNT,
+)
 
 
 def setup_logging(

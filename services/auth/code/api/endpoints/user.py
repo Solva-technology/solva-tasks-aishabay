@@ -1,7 +1,5 @@
 from fastapi import APIRouter
 from fastapi.params import Depends
-from sqlalchemy.ext.asyncio import AsyncSession
-
 from services.auth.code.api.schemas.user import UserCreate, UserRead
 from services.auth.code.core.db import get_async_session
 from services.auth.code.core.user import (
@@ -12,6 +10,7 @@ from services.auth.code.core.user import (
 )
 from services.auth.code.db.crud.user import user_crud
 from services.auth.code.db.models import User
+from sqlalchemy.ext.asyncio import AsyncSession
 
 
 router = APIRouter()

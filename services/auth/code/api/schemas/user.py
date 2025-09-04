@@ -1,8 +1,8 @@
 from typing import Optional
 
 from fastapi_users import schemas
-from services.auth.code.core.enum import UserRole
 from pydantic import BaseModel, EmailStr
+from services.auth.code.core.enum import UserRole
 
 
 class UserRead(schemas.BaseUser[int]):
