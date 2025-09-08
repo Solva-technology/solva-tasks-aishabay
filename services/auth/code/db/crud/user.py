@@ -2,9 +2,11 @@ import logging
 from typing import Optional
 
 from fastapi_users.password import PasswordHelper
+from pydantic import BaseModel
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from services.auth.code.api.schemas.user import UserCreate
 from services.auth.code.db.crud.base import CRUDBase
 from services.auth.code.db.models import User
 
@@ -17,21 +19,25 @@ password_helper = PasswordHelper()
 class CRUDUser(CRUDBase):
     async def create(
             self,
-            obj_in,
+            obj_in: UserCreate,
             session: AsyncSession,
             user: Optional[User] = None,
     ):
-        obj_in_data = obj_in.dict()
+        if isinstance(obj_in, BaseModel):
+            obj_in_data = obj_in.model_dump()
+        else:
+            obj_in_data = dict(obj_in)
+
         obj_in_data["hashed_password"] = password_helper.hash(
             obj_in_data.pop("password"),
         )
-        logger.info(f"Creating {self.model.__name__} with data={obj_in_data}")
+        logger.debug(f"Creating {self.model.__name__} with data={obj_in_data}")
         db_obj = self.model(**obj_in_data)
         session.add(db_obj)
         await session.commit()
         await session.refresh(db_obj)
         if user:
-            logger.info(
+            logger.debug(
                 f"Permission granted: user_id={user.id} -> "
                 f"{self.model.__name__}.",
             )

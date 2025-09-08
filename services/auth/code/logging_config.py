@@ -1,6 +1,8 @@
+import json
 import logging
 import os
 import queue
+from datetime import datetime
 from logging.handlers import (
     QueueHandler,
     QueueListener,
@@ -13,12 +15,37 @@ from services.auth.code.core.constants import (
 )
 
 
+class JSONFormatter(logging.Formatter):
+    def format(self, record: logging.LogRecord) -> str:
+        log_record = {
+            "timestamp": datetime.utcnow().isoformat(),
+            "level": record.levelname,
+            "logger": record.name,
+            "message": record.getMessage(),
+        }
+
+        standard_attrs = {
+            "name", "msg", "args", "levelname", "levelno", "pathname",
+            "filename", "module", "exc_info", "exc_text", "stack_info",
+            "lineno", "funcName", "created", "msecs", "relativeCreated",
+            "thread", "threadName", "processName", "process", "message",
+            "taskName",
+        }
+
+        for key, value in record.__dict__.items():
+            if key not in standard_attrs:
+                log_record[key] = value
+
+        return json.dumps(log_record, indent=2, ensure_ascii=False)
+
+
 def setup_logging(
     log_level: str = "DEBUG",
     log_dir: str = "services/auth/logs",
 ) -> QueueListener:
     """
-    Setup non-blocking logging for FastAPI using QueueHandler + QueueListener.
+    Setup non-blocking JSON logging for FastAPI using
+    QueueHandler + QueueListener.
 
     Args:
         log_level (str): Minimum log level
@@ -31,11 +58,9 @@ def setup_logging(
 
     os.makedirs(log_dir, exist_ok=True)
 
+    json_formatter = JSONFormatter()
     console_formatter = logging.Formatter(
         "%(levelname)s in %(name)s: %(message)s",
-    )
-    file_formatter = logging.Formatter(
-        "[%(asctime)s] %(levelname)s in %(name)s: %(message)s",
     )
 
     console_handler = logging.StreamHandler()
@@ -49,7 +74,7 @@ def setup_logging(
         encoding="utf-8",
     )
     file_handler.setLevel(logging.INFO)
-    file_handler.setFormatter(file_formatter)
+    file_handler.setFormatter(json_formatter)
 
     error_handler = TimedRotatingFileHandler(
         os.path.join(log_dir, "errors.log"),
@@ -58,7 +83,7 @@ def setup_logging(
         encoding="utf-8",
     )
     error_handler.setLevel(logging.ERROR)
-    error_handler.setFormatter(file_formatter)
+    error_handler.setFormatter(json_formatter)
 
     sqlalchemy_logger = logging.getLogger("sqlalchemy.engine")
     sqlalchemy_logger.propagate = False
@@ -69,7 +94,6 @@ def setup_logging(
     handlers = [console_handler, file_handler, error_handler]
 
     log_queue: queue.Queue = queue.Queue(-1)  # infinite queue
-
     queue_handler = QueueHandler(log_queue)
 
     root_logger = logging.getLogger()

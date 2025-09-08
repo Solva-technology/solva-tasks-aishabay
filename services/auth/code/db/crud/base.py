@@ -3,6 +3,7 @@ from http import HTTPStatus
 from typing import Optional
 
 from fastapi import HTTPException
+from pydantic import BaseModel
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -36,33 +37,34 @@ class CRUDBase:
             self,
             obj_id: int,
             session: AsyncSession,
-            user: Optional[User],
+            user: Optional[User] = None,
     ):
         obj = await self.get(obj_id, session)
-        if obj is None:
-            logger.warning(
+        if not obj:
+            logger.debug(
                 f"{self.model.__name__} with id={obj_id} not found (404)",
             )
             raise HTTPException(
                 status_code=HTTPStatus.NOT_FOUND,
                 detail=f"{self.model.__name__} not found",
             )
-        logger.debug(
-            f"Access granted: user_id={user.id} -> "
-            f"{self.model.__name__}(id={obj_id})",
-        )
+        if user:
+            logger.debug(
+                f"Access granted: user_id={user.id} -> "
+                f"{self.model.__name__}(id={obj_id})",
+            )
         return obj
 
     async def get_owned_or_403(
             self,
             obj_id: int,
             session: AsyncSession,
-            user: Optional[User],
+            user: User,
             owner_field: str = "author_id",
     ):
         obj = await self.get_or_404(obj_id, session, user)
         if getattr(obj, owner_field) != user.id and not user.is_superuser:
-            logger.warning(
+            logger.debug(
                 f"Access forbidden: user_id={user.id} "
                 f"tried to access {self.model.__name__}(id={obj_id})",
             )
@@ -81,7 +83,6 @@ class CRUDBase:
         skip: int,
         limit: int,
         session: AsyncSession,
-        user: Optional[User],
     ):
         logger.debug(
             f"Fetching multiple {self.model.__name__} objects "
@@ -91,10 +92,6 @@ class CRUDBase:
             select(self.model).offset(skip).limit(limit),
         )
         objs = db_objs.scalars().all()
-        logger.debug(
-            f"Access granted: user_id={user.id} -> "
-            f"{self.model.__name__} objects.",
-        )
         logger.debug(f"Fetched {len(objs)} {self.model.__name__} objects")
         return objs
 
@@ -102,15 +99,19 @@ class CRUDBase:
             self,
             obj_in,
             session: AsyncSession,
-            user: Optional[User] = None,
+            user: User,
     ):
-        obj_in_data = obj_in.dict()
-        logger.info(f"Creating {self.model.__name__} with data={obj_in_data}")
+        if isinstance(obj_in, BaseModel):
+            obj_in_data = obj_in.model_dump()
+        else:
+            obj_in_data = dict(obj_in)
+
+        logger.debug(f"Creating {self.model.__name__} with data={obj_in_data}")
         db_obj = self.model(**obj_in_data)
         session.add(db_obj)
         await session.commit()
         await session.refresh(db_obj)
-        logger.info(
+        logger.debug(
             f"Permission granted: user_id={user.id} -> {self.model.__name__}.",
         )
         logger.info(f"Created {self.model.__name__}(id={db_obj.id})")
@@ -121,10 +122,14 @@ class CRUDBase:
         db_obj,
         obj_in,
         session: AsyncSession,
-        user: Optional[User] = None,
+        user: User,
     ):
-        update_data = obj_in.dict(exclude_unset=True)
-        logger.info(
+        if isinstance(obj_in, BaseModel):
+            update_data = obj_in.model_dump(exclude_unset=True)
+        else:
+            update_data = dict(obj_in)
+
+        logger.debug(
             f"Updating {self.model.__name__}(id={db_obj.id}) "
             f"with {update_data}",
         )
@@ -144,14 +149,14 @@ class CRUDBase:
         self,
         db_obj,
         session: AsyncSession,
-        user: Optional[User] = None,
+        user: User,
     ):
-        logger.warning(f"Deleting {self.model.__name__}(id={db_obj.id})")
+        logger.debug(f"Deleting {self.model.__name__}(id={db_obj.id})")
         await session.delete(db_obj)
         await session.commit()
         logger.debug(
             f"Access granted: user_id={user.id} -> "
             f"{self.model.__name__}(id={db_obj.id})",
         )
-        logger.warning(f"Deleted {self.model.__name__}(id={db_obj.id})")
+        logger.info(f"Deleted {self.model.__name__}(id={db_obj.id})")
         return db_obj

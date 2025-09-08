@@ -33,6 +33,16 @@ class PreBase:
         nullable=False,
     )
 
+    repr_attrs: tuple[str, ...] = ("id",)
+
+    def __repr__(self):
+        values = ", ".join(
+            f"{attr}={getattr(self, attr)}"
+            for attr in self.repr_attrs
+            if hasattr(self, attr)
+        )
+        return f"<{self.__class__.__name__}({values})>"
+
 
 Base = declarative_base(cls=PreBase)
 

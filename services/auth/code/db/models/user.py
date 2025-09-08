@@ -14,9 +14,10 @@ class User(SQLAlchemyBaseUserTable[int], Base):
     full_name: Mapped[str] = mapped_column(String, nullable=False)
     role: Mapped[UserRole] = mapped_column(String, nullable=False)
 
-    def __repr__(self):
-        return (
-            f"id={self.id}, "
-            f"telegram_id={self.telegram_id}, "
-            f"email={self.email}"
-        )
+    repr_attrs = (
+        "id",
+        "telegram_id",
+        "email",
+        "full_name",
+        "role",
+    )
