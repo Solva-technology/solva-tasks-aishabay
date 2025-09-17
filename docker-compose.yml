@@ -13,22 +13,24 @@ services:
       interval: 5s
       retries: 5
 
-#  postgres-core:
-#    image: postgres:15-alpine
-#    container_name: postgres-core
-#    env_file:
-#      - services/core/.env
-#    ports:
-#      - "5437:5432"
-#    volumes:
-#      - postgres_core_data:/var/lib/postgresql/data
-#    healthcheck:
-#      test: [ "CMD", "pg_isready", "-U", "${POSTGRES_USER}" ]
-#      interval: 5s
-#      retries: 5
+  postgres-core:
+    image: postgres:15-alpine
+    container_name: postgres-core
+    env_file:
+      - services/core/.env
+    ports:
+      - "5437:5432"
+    volumes:
+      - postgres_core_data:/var/lib/postgresql/data
+    healthcheck:
+      test: [ "CMD", "pg_isready", "-U", "${POSTGRES_USER}" ]
+      interval: 5s
+      retries: 5
 
   auth:
-    build: services/auth
+    build:
+      context: ./services/auth
+      dockerfile: Dockerfile
     container_name: auth
     env_file:
       - services/auth/.env
@@ -41,6 +43,23 @@ services:
     restart: always
     depends_on:
       - postgres-auth
+
+  core:
+    build:
+      context: ./services/core
+      dockerfile: Dockerfile
+    container_name: core
+    env_file:
+      - services/core/.env
+    working_dir: /usr/src/app
+    volumes:
+      - .:/usr/src/app
+    tty: true
+    ports:
+      - "8001:8000"
+    restart: always
+    depends_on:
+      - postgres-core
 
 volumes:
   postgres_auth_data:

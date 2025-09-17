@@ -1,9 +1,9 @@
 from fastapi_users_db_sqlalchemy import SQLAlchemyBaseUserTable
-from libs.common.enums import UserRole
 from sqlalchemy import BigInteger, String
 from sqlalchemy.orm import Mapped, mapped_column
 
 from services.auth.code.core.base import Base
+from services.auth.code.core.enum import UserRole
 
 
 class User(SQLAlchemyBaseUserTable[int], Base):

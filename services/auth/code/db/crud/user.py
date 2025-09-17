@@ -66,5 +66,23 @@ class CRUDUser(CRUDBase):
             )
         return obj
 
+    async def get_multi_by_ids(
+        self,
+        ids: list[int],
+        session: AsyncSession,
+    ):
+        logger.debug(
+            f"Fetching multiple {self.model.__name__} objects "
+            f"by ids",
+        )
+        db_objs = await session.execute(
+            select(self.model).where(self.model.id.in_(ids)),
+        )
+        objs = db_objs.scalars().all()
+        logger.debug(f"Fetched {len(objs)} {self.model.__name__} objects")
+        if len(objs) != len(ids):
+            logger.debug("One or more users not found")
+        return objs
+
 
 user_crud = CRUDUser(User)

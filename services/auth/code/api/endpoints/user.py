@@ -38,10 +38,34 @@ async def get_current_user(
     return await user_crud.get_or_404(user_id, session, user)
 
 
-@router.get("/user/{id}")
+@router.get("/user/{user_id}")
 async def get_user_by_id(
     user_id: int,
     session: AsyncSession = Depends(get_async_session),
     user: User = Depends(role_required(["admin", "teacher"])),
 ):
     return await user_crud.get_or_404(user_id, session, user)
+
+
+@router.get("/user/{user_id}/is_manager")
+async def get_manager_by_id(
+    user_id: int,
+    session: AsyncSession = Depends(get_async_session),
+):
+    user = await user_crud.get(user_id, session)
+    if not user:
+        return {"user_id": user_id, "is_manager": False}
+
+    return {"user_id": user.id, "is_manager": user.role == "manager"}
+
+
+@router.post("/user/are_students")
+async def are_students(
+    user_ids: list[int],
+    session: AsyncSession = Depends(get_async_session),
+):
+    user_ids = list(set(user_ids))
+    users = await user_crud.get_multi_by_ids(user_ids, session)
+
+    are_students = all(user.role == "student" for user in users)
+    return {"user_ids": user_ids, "are_students": are_students}
