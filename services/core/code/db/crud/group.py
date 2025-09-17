@@ -1,13 +1,14 @@
 import logging
 
 from fastapi import HTTPException, status
-from sqlalchemy import insert
+from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from services.core.code.api.schemas.group import GroupCreate
 from services.core.code.core.clients import auth_client
 from services.core.code.db.crud.base import CRUDBase
 from services.core.code.db.models import Group
+from services.core.code.db.models.group import GroupStudent
 
 
 logger = logging.getLogger(__name__)
@@ -58,16 +59,27 @@ class CRUDGroup(CRUDBase):
 
         if obj_in.students:
             for student_id in obj_in.students:
-                await session.execute(
-                    insert("groupstudent").values(
-                        group_fk=db_obj.id, student_fk=student_id,
-                    ),
+                session.add(
+                    GroupStudent(group_fk=db_obj.id, student_fk=student_id),
                 )
             await session.commit()
-        logger.debug(
-            f"Permission granted: user_id={user.id} -> {self.model.__name__}.",
+
+        result = await session.execute(
+            select(GroupStudent.student_fk).
+            where(GroupStudent.group_fk == db_obj.id),
         )
-        logger.info(f"Created {self.model.__name__}(id={db_obj.id})")
+
+        student_ids = [row[0] for row in result.fetchall()]
+
+        logger.debug(
+            f"Permission granted: user_id={user.get('id')} "
+            f"-> {self.model.__name__}.",
+        )
+        logger.info(
+            f"Created {self.model.__name__}(id={db_obj.id}), "
+            f"students={student_ids})",
+        )
+
         return db_obj
 
 

@@ -15,10 +15,9 @@ class Group(Base):
     name: Mapped[str] = mapped_column(String, nullable=False)
     manager_id: Mapped[int] = mapped_column(Integer, nullable=False)
 
-    students: Mapped[list[int]] = relationship(
-        secondary="groupstudent",
-        back_populates="groups",
-        uselist=True,
+    tasks: Mapped[list["Task"]] = relationship(  # noqa: F821
+        back_populates="group",
+        cascade="all, delete-orphan",
     )
 
     repr_attrs = (
