@@ -67,5 +67,14 @@ async def are_students(
     user_ids = list(set(user_ids))
     users = await user_crud.get_multi_by_ids(user_ids, session)
 
-    are_students = all(user.role == "student" for user in users)
-    return {"user_ids": user_ids, "are_students": are_students}
+    if len(users) != len(user_ids):
+        return {
+            "user_ids": user_ids,
+            "are_students": False,
+        }
+
+    all_students = all(user.role == "student" for user in users)
+    return {
+        "user_ids": user_ids,
+        "are_students": all_students,
+    }
